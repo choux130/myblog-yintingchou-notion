@@ -52,7 +52,7 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
-          FOLDER: dist/output
+          FOLDER: pages_repo/dist/notion
           CLEAN: true
           SINGLE_COMMIT: true
 
