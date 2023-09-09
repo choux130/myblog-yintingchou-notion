@@ -1,0 +1,65 @@
+# 
+# Copyright (C) 2020 ArtXIA <https://github.com/artxia>
+# <https://github.com/artxia/Action-NotionSite.git>
+#
+
+name: Deploy to Pages
+
+on:
+#  schedule:
+#    - cron: "*/20 * * * *"
+  workflow_dispatch:
+    inputs:
+    
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-18.04
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Checkout loconotion
+        uses: actions/checkout@v2
+        with:
+          repository: leoncvlt/loconotion
+          path: loconotion
+
+      - name: Checkout this repo
+        uses: actions/checkout@v2
+        with:
+          path: pages_repo
+
+      - name: Build Loconotion docker image
+        run: docker-compose build loconotion
+        working-directory: loconotion
+
+      - name: Configuration File
+        run: |
+          cat >  ${GITHUB_WORKSPACE}/loconotion/example/example_site.toml  << EOF
+          ${{ secrets.SITE_CONFIG }}
+          EOF
+
+      - name: Run Loconotion
+        run: |
+          docker-compose run \
+          -v "${GITHUB_WORKSPACE}/pages_repo/dist:/app/loconotion/dist" \
+          -v "${GITHUB_WORKSPACE}/loconotion/example/example_site.toml:/app/loconotion/site.toml" \
+          loconotion "site.toml"
+        working-directory: loconotion
+
+      - name: Deploy to Pages
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: pages_repo/dist/notion
+          CLEAN: true
+          SINGLE_COMMIT: true
+
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 2
+          keep_minimum_runs: 6
