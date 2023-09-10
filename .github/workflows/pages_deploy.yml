@@ -49,6 +49,7 @@ jobs:
 
       - name: Debug
         run: |
+          sleep 5
           pwd
           ls -al
           ls -R
