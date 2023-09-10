@@ -6,10 +6,10 @@
 name: Deploy to Pages
 
 on:
-#  schedule:
-#    - cron: "*/20 * * * *"
-  workflow_dispatch:
-    inputs:
+ schedule:
+   - cron: "0 * * * *"
+  # workflow_dispatch:
+  #   inputs:
     
 jobs:
   build-and-deploy:
